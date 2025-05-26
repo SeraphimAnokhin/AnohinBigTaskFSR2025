@@ -243,7 +243,7 @@ void write_image(char *filename, unsigned int width, unsigned int height, unsign
 void paint_components(int width, int height, int *comp, int comp_num, int *comp_size, int min_size, int **mat, unsigned char *image) {
     int i, j, color_num = 0;
     for (i = 0; i < comp_num; i++) {
-        if (comp_size[i] > 30) {
+        if (comp_size[i] > min_size) {
             color_num++;
         }
     }
@@ -251,19 +251,19 @@ void paint_components(int width, int height, int *comp, int comp_num, int *comp_
     int colors[comp_num];
     j = 0;
     for (i = 0; i < comp_num; i++) {
-        if (comp_size[i] > 30) {
+        if (comp_size[i] > min_size) {
             colors[i] = j;
             j++;
         }
     }
 
-    printf("%d\n", color_num);
+    printf("%d of which are of size more than %d and will be painted.\n", color_num, min_size);
 
 
     int r[color_num], g[color_num], b[color_num];
     double h, s, v, c, x, m, rp, gp, bp;
     for (i = 0; i < color_num; i++) {
-        h = (360. * i) / color_num;
+        h = (360. * i) / (double)color_num;
         s = 1.;
         v = 1.;
 
@@ -316,7 +316,7 @@ void paint_components(int width, int height, int *comp, int comp_num, int *comp_
 
     for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
-            if (comp_size[comp[i * width + j]] > 30) {
+            if (comp_size[comp[i * width + j]] > min_size) {
                 image[(i * width + j) * 4] = r[colors[comp[i * width + j]]];
                 image[(i * width + j) * 4 + 1] = g[colors[comp[i * width + j]]];
                 image[(i * width + j) * 4 + 2] = b[colors[comp[i * width + j]]];
@@ -401,7 +401,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf("%s", in_filename);
+    //printf("%s", in_filename);
 
     unsigned int width, height;
     unsigned char *image;
@@ -424,7 +424,7 @@ int main(int argc, char **argv) {
 
     int comp[width * height], comp_num, comp_size[width * height];
     comp_num = find_components(width * height, adj_lists, comp, comp_size);
-    printf("%d\n", comp_num);
+    printf("Found %d components of sizes:\n", comp_num);
 
     for (i = 0; i < comp_num; i++) {
         if (comp_size[i] > min_size) {
